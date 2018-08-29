@@ -770,7 +770,7 @@ class Worksheet(object):
 
         return self.spreadsheet.batch_update(body)
 
-    def delete_ranges(self, list_of_indexes):
+    def delete_rows(self, list_of_indexes):
         """
         Deletes multiple rows by splitting them into ranges
         :param list_of_indexes: List of Indexes to be deleted from worksheet.
