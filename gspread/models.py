@@ -770,6 +770,39 @@ class Worksheet(object):
 
         return self.spreadsheet.batch_update(body)
 
+    def delete_ranges(self, list_of_indexes):
+        """
+        Deletes multiple rows by splitting them into ranges
+        :param list_of_indexes: List of Indexes to be deleted from worksheet.
+        """
+        # Inner function to break list of indexes into ranges to greatly reduce operations needed for deletion of large number of indexes.
+        def find_ranges(iterable):
+            import more_itertools as mit
+            for item in mit.consecutive_groups(iterable):
+                group = list(item)
+                if len(group) == 1:
+                    yield group[0]-1, group[0]
+                else:
+                    yield group[0]-1, group[-1]
+
+        # Process indexes into list of ranges
+        range_list = []
+        for item in list(find_ranges(list_of_indexes)):
+            range_list.insert(0, item)
+        
+        # Prepare body
+        body = '{ "requests": ['
+        for item in range_list:
+            body = body + ' { "deleteDimension": { "range": { "sheetId": '+str(self.id)+', "dimension": "ROWS", "startIndex": '+str(item[0])+', "endIndex": '+str(item[1])+' } } },'
+        body = body + ' ] }'
+        
+        import re
+        body = re.sub(r'}, ] }$', '} ] }', body)
+
+        import StringIO as io
+        import json
+        return self.spreadsheet.batch_update(json.loads(body))
+
     def clear(self):
         """Clears all cells in the worksheet.
         """
