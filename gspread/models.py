@@ -788,8 +788,8 @@ class Worksheet(object):
         # Process indexes into list of ranges
         range_list = []
         for item in list(find_ranges(list_of_indexes)):
-            range_list.insert(0, item)
-        
+            range_list.append(item)
+
         # Prepare body
         body = '{ "requests": ['
         for item in range_list:
