@@ -775,7 +775,7 @@ class Worksheet(object):
         Deletes multiple rows by splitting them into ranges
         :param list_of_indexes: List of Indexes to be deleted from worksheet.
         """
-        # Inner function to break list of indexes into ranges to greatly reduce operations needed for deletion of large number of indexes.
+        # Inner function to break list of indexes into ranges to greatly reduce operations needed for deletion of large number of rows when contiguous ranges exist.
         def find_ranges(iterable):
             import more_itertools as mit
             for item in mit.consecutive_groups(iterable):
@@ -795,11 +795,10 @@ class Worksheet(object):
         for item in range_list:
             body = body + ' { "deleteDimension": { "range": { "sheetId": '+str(self.id)+', "dimension": "ROWS", "startIndex": '+str(item[0])+', "endIndex": '+str(item[1])+' } } },'
         body = body + ' ] }'
-        
+       
         import re
-        body = re.sub(r'}, ] }$', '} ] }', body)
-
-        import StringIO as io
+        body = re.sub(r'}, ] }$', '} ] }', body) # This saves us from having to keep track of when we're at the final list item in the body construction loop.
+        
         import json
         return self.spreadsheet.batch_update(json.loads(body))
 
