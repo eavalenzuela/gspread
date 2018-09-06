@@ -790,6 +790,7 @@ class Worksheet(object):
         for item in list(find_ranges(list_of_indexes)):
             range_list.append(item)
 
+        range_list.sort(reverse=True)
         # Prepare body
         body = '{ "requests": ['
         for item in range_list:
@@ -798,7 +799,7 @@ class Worksheet(object):
        
         import re
         body = re.sub(r'}, ] }$', '} ] }', body) # This saves us from having to keep track of when we're at the final list item in the body construction loop.
-        
+
         import json
         return self.spreadsheet.batch_update(json.loads(body))
 
