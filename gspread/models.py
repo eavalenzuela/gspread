@@ -809,7 +809,8 @@ class Worksheet(object):
         # Process indexes into list of ranges
         range_list = []
         for item in list(find_ranges(list_of_indexes)):
-            range_list.insert(0, item)
+            range_list.append(item)
+        range_list.sort(reverse=True)
         
         # Prepare body
         body = '{ "requests": ['
@@ -818,7 +819,7 @@ class Worksheet(object):
         body = body + ' ] }'
         
         import re
-        body = re.sub(r'}, ] }$', '} ] }', body)
+        body = re.sub(r'}, ] }$', '} ] }', body) # This saves us from having to keep track of when we're at the final list item in the body construction loop.
 
         import StringIO as io
         import json
