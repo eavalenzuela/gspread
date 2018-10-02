@@ -696,7 +696,28 @@ class Worksheet(object):
         }
 
         body = {
+            'majorDimension': 'ROWS',
             'values': [values]
+        }
+
+        return self.spreadsheet.values_append(self.title, params, body)
+
+    def append_rows(self, values, value_input_option='RAW'):
+        """Adds multiple rows to the worksheet with values populated.
+        The input should be a list of lists, with the lists each
+        containing one row's values.
+        Widens the worksheet if there are more values than columns.
+
+        :param values: List of row lists.
+
+        """
+        params = {
+                'valueInputOption': value_input_option
+        }
+
+        body = {
+                'majorDimension': 'ROWS',
+                'values': values
         }
 
         return self.spreadsheet.values_append(self.title, params, body)
@@ -775,7 +796,7 @@ class Worksheet(object):
         Deletes multiple rows by splitting them into ranges
         :param list_of_indexes: List of Indexes to be deleted from worksheet.
         """
-        # Inner function to break list of indexes into ranges to greatly reduce operations needed for deletion of large number of rows when contiguous ranges exist.
+        # Inner function to break list of indexes into ranges to greatly reduce operations needed for deletion of large number of indexes.
         def find_ranges(iterable):
             import more_itertools as mit
             for item in mit.consecutive_groups(iterable):
@@ -788,18 +809,18 @@ class Worksheet(object):
         # Process indexes into list of ranges
         range_list = []
         for item in list(find_ranges(list_of_indexes)):
-            range_list.append(item)
-
-        range_list.sort(reverse=True)
+            range_list.insert(0, item)
+        
         # Prepare body
         body = '{ "requests": ['
         for item in range_list:
             body = body + ' { "deleteDimension": { "range": { "sheetId": '+str(self.id)+', "dimension": "ROWS", "startIndex": '+str(item[0])+', "endIndex": '+str(item[1])+' } } },'
         body = body + ' ] }'
-       
+        
         import re
-        body = re.sub(r'}, ] }$', '} ] }', body) # This saves us from having to keep track of when we're at the final list item in the body construction loop.
+        body = re.sub(r'}, ] }$', '} ] }', body)
 
+        import StringIO as io
         import json
         return self.spreadsheet.batch_update(json.loads(body))
 
