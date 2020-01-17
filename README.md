@@ -9,6 +9,15 @@ Features:
 * Extract range, entire row or column values.
 * Python 3 support.
 
+## Installation
+
+```sh
+pip install gspread
+```
+
+Requirements: Python 2.7+ or Python 3+.
+
+
 ## Basic Usage
 
 1. [Obtain OAuth2 credentials from Google Developers Console](http://gspread.readthedocs.org/en/latest/oauth2.html)
@@ -97,10 +106,6 @@ val = worksheet.acell('B1').value
 
 # With coords
 val = worksheet.cell(1, 2).value
-
-# To get a cell formula
-cell = worksheet.acell('B1') # or .cell(1, 2)
-cell.input_value
 ```
 
 ### Getting All Values From a Row or a Column
@@ -172,29 +177,7 @@ for cell in cell_list:
 worksheet.update_cells(cell_list)
 ```
 
-## Installation
-
-### Requirements
-
-Python 2.6+ or Python 3+
-
-### From PyPI
-
-```sh
-pip install gspread
-```
-
-### From GitHub
-
-```sh
-git clone https://github.com/burnash/gspread.git
-cd gspread
-python setup.py install
-```
-
-## Documentation
-* [Getting Google API's credentials](http://gspread.readthedocs.io/en/latest/oauth2.html)
-* [gspread API Reference](http://gspread.readthedocs.org/)
+## [Documentation](http://gspread.readthedocs.org/)
 
 ## [Contributors](https://github.com/burnash/gspread/graphs/contributors)
 
@@ -211,6 +194,10 @@ The best way to get an answer to a question is to ask on [Stack Overflow with a 
 Please report bugs and suggest features via the [GitHub Issues](https://github.com/burnash/gspread/issues).
 
 Before opening an issue, search the tracker for possible duplicates. If you find a duplicate, please add a comment saying that you encountered the problem as well.
+
+### Improve Documentation
+
+If you spot areas in [documentation](https://gspread.readthedocs.io/) that you think could be better, please submit a pull request. Docs are located in [`docs`](https://github.com/burnash/gspread/tree/master/docs) folder, use [reStructuredText](http://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html#rst-index) markup and rendered by [Sphinx](http://www.sphinx-doc.org/).
 
 ### Contribute code
 

@@ -8,12 +8,20 @@ This module contains utility functions.
 
 """
 
+import sys
 import re
 from functools import wraps
 from collections import defaultdict
 from itertools import chain
 
 from .exceptions import IncorrectCellLabel, NoValidUrlKeyFound
+
+
+if sys.version_info.major == 2:
+    import urllib
+elif sys.version_info.major == 3:
+    import urllib.parse as urllib
+
 
 MAGIC_NUMBER = 64
 CELL_ADDR_RE = re.compile(r'([A-Za-z]+)([1-9]\d*)')
@@ -29,7 +37,7 @@ def finditem(func, seq):
     return next((item for item in seq if func(item)))
 
 
-def numericise(value, empty2zero=False, default_blank=""):
+def numericise(value, empty2zero=False, default_blank="", allow_underscores_in_numeric_literals=False):
     """Returns a value that depends on the input string:
         - Float if input can be converted to Float
         - Integer if input can be converted to integer
@@ -42,6 +50,10 @@ def numericise(value, empty2zero=False, default_blank=""):
     'faa'
     >>> numericise("3")
     3
+    >>> numericise("3_2", allow_underscores_in_numeric_literals=False)
+    '3_2'
+    >>> numericise("3_2", allow_underscores_in_numeric_literals=True)
+    '32'
     >>> numericise("3.1")
     3.1
     >>> numericise("", empty2zero=True)
@@ -58,6 +70,8 @@ def numericise(value, empty2zero=False, default_blank=""):
     >>>
     """
     if value is not None:
+        if "_" in value and not allow_underscores_in_numeric_literals:
+            return value
         try:
             value = int(value)
         except ValueError:
@@ -73,9 +87,9 @@ def numericise(value, empty2zero=False, default_blank=""):
     return value
 
 
-def numericise_all(input, empty2zero=False, default_blank=""):
+def numericise_all(input, empty2zero=False, default_blank="", allow_underscores_in_numeric_literals=False):
     """Returns a list of numericised values from strings"""
-    return [numericise(s, empty2zero, default_blank) for s in input]
+    return [numericise(s, empty2zero, default_blank, allow_underscores_in_numeric_literals) for s in input]
 
 
 def rowcol_to_a1(row, col):
@@ -83,9 +97,11 @@ def rowcol_to_a1(row, col):
 
     :param row: The row of the cell to be converted.
                 Rows start at index 1.
+    :type row: int, str
 
     :param col: The column of the cell to be converted.
                 Columns start at index 1.
+    :type row: int, str
 
     :returns: a string containing the cell's coordinates in A1 notation.
 
@@ -119,8 +135,9 @@ def rowcol_to_a1(row, col):
 def a1_to_rowcol(label):
     """Translates a cell's address in A1 notation to a tuple of integers.
 
-    :param label: String with cell label in A1 notation, e.g. 'B1'.
+    :param label: A cell label in A1 notation, e.g. 'B1'.
                   Letter case is ignored.
+    :type label: str
 
     :returns: a tuple containing `row` and `column` numbers. Both indexed
               from 1 (one).
@@ -213,8 +230,8 @@ def cell_list_to_rect(cell_list):
 
     rows = defaultdict(lambda: {})
 
-    row_offset = cell_list[0].row
-    col_offset = cell_list[0].col
+    row_offset = min(c.row for c in cell_list)
+    col_offset = min(c.col for c in cell_list)
 
     for cell in cell_list:
         row = rows.setdefault(int(cell.row) - row_offset, {})
@@ -232,6 +249,10 @@ def cell_list_to_rect(cell_list):
     # of updates, so if a cell isn't present in the input cell_list, then the
     # value will be None and will not be updated.
     return [[rows[i].get(j) for j in rect_cols] for i in rect_rows]
+
+
+def quote(value, safe='', encoding='utf-8'):
+    return urllib.quote(value.encode(encoding), safe)
 
 
 if __name__ == '__main__':
