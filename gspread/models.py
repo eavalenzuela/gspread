@@ -1038,7 +1038,6 @@ class Worksheet(object):
         import re
         body = re.sub(r'}, ] }$', '} ] }', body) # This saves us from having to keep track of when we're at the final list item in the body construction loop.
 
-        import StringIO as io
         import json
         return self.spreadsheet.batch_update(json.loads(body))
 
